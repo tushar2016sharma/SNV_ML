@@ -156,7 +156,7 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
         project_name=f"hyperband_CNN_{sample_id}"
     )
 
-    stop_early = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
+    stop_early = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=False)
     tuner.search(X_train, y_train, validation_data=(X_val, y_val), callbacks=[stop_early])
 
     best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
