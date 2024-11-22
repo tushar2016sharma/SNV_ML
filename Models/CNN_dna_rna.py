@@ -24,6 +24,7 @@ from sklearn.metrics import confusion_matrix, f1_score, cohen_kappa_score, preci
 import torch
 import tensorflow as tf
 import keras_tuner as kt
+from keras_tuner import Hyperband
 from tensorflow.keras import layers, models, regularizers
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.optimizers import Adam
