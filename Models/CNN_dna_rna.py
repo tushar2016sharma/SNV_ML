@@ -126,7 +126,7 @@ class CNNHyperModel(kt.HyperModel):
 
         # Convolution blocks
         for i in range(3):
-            model.add(layers.Conv1D(filters=hp.Int(f"filters_{i}", 128, 512, step=128),
+            model.add(layers.Conv1D(filters=hp.Int(f"filters_{i}", 64, 512, step=64),
                                     kernel_size=1, activation="relu"))
             model.add(layers.BatchNormalization())
             model.add(layers.Dropout(hp.Float(f"dropout_{i}", 0.2, 0.5, step=0.1)))
