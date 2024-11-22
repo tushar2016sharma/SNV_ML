@@ -1,2 +1,8 @@
 # SNV_ML
-Contributions to the scSNV mutation type origin prediction project
+Modeling the origin of the mutation type in scRNA nanopore long reads data.
+
+```
+Installation requirements -
+
+  - keras-core (for torch backend)
+  - Keras_tuner (for Hyperband tuning)
