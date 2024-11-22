@@ -188,17 +188,14 @@ def f1_score(y_true, y_pred):
     # Ensure both y_true and y_pred are float32
     y_true = K.cast(y_true, "float32")
     y_pred = K.cast(K.round(K.clip(y_pred, 0, 1)), "float32")
-    
-    # True Positives, False Positives, False Negatives
+
     tp = K.sum(y_true * y_pred)
     fp = K.sum((1 - y_true) * y_pred)
     fn = K.sum(y_true * (1 - y_pred))
-    
-    # Precision and Recall
+
     precision = tp / (tp + fp + K.epsilon())
     recall = tp / (tp + fn + K.epsilon())
     
-    # F1 Score
     f1 = 2 * (precision * recall) / (precision + recall + K.epsilon())
     return f1
 
