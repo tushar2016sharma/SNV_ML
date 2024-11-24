@@ -1,7 +1,6 @@
 # SNV_ML
 Modeling the origin of the mutation type in scRNA nanopore long reads data.
 
-```
 Installation requirements -
 
 Other than the standard python libraries for ML/DL modelling, following are the two additional libraries required:
@@ -11,4 +10,3 @@ Other than the standard python libraries for ML/DL modelling, following are the 
 
   - Keras-tuner (for Hyperband tuning)
       https://pypi.org/project/keras-tuner/
-```
