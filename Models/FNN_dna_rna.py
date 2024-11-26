@@ -12,6 +12,7 @@ from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.preprocessing import StandardScaler, MaxAbsScaler, OneHotEncoder
 from sklearn.metrics import confusion_matrix, f1_score, cohen_kappa_score, precision_score, recall_score, precision_recall_curve, auc, roc_auc_score, make_scorer
 
+import gc
 import torch
 import tensorflow as tf
 import keras_tuner as kt
