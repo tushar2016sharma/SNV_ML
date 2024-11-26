@@ -143,22 +143,23 @@ class FNNHyperModel(kt.HyperModel):
 
 
 # memory cleanup callback
-class MemoryCleanupCallback(tf.keras.callbacks.Callback):
-    def on_trial_end(self, trial, logs=None):
-        torch.cuda.empty_cache()  
-        gc.collect()              
+class MemoryEfficientHyperband(Hyperband):
+    def on_trial_end(self, trial):
+        super().on_trial_end(trial) 
+        torch.cuda.empty_cache()    
+        gc.collect()                
         print(f"Cleared GPU memory after trial {trial.trial_id}")
-
+        
 
 
 # HYPERBAND TUNING
 def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
-    tuner = Hyperband(FNNHyperModel(),
-                      objective="val_loss",
-                      max_epochs=150,
-                      factor=2,
-                      directory=models_dir,
-                      project_name=f"hyperband_FNN_{sample_id}")
+    tuner = MemoryEfficientHyperband(FNNHyperModel(),
+                                     objective="val_loss",
+                                     max_epochs=150,
+                                     factor=2,
+                                     directory=models_dir,
+                                     project_name=f"hyperband_FNN_{sample_id}")
 
     stop_early = EarlyStopping(monitor="val_loss", 
                                patience=10, 
