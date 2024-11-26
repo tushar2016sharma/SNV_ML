@@ -142,7 +142,7 @@ class FNNHyperModel(kt.HyperModel):
         return model
 
 
-# memory cleanup callback
+# memory cleanup
 class MemoryEfficientHyperband(Hyperband):
     def on_trial_end(self, trial):
         super().on_trial_end(trial) 
