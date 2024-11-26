@@ -142,12 +142,12 @@ class FNNHyperModel(kt.HyperModel):
         return model
 
 
-
-# # memory cleanup after trial
-# class MemoryCleanupCallback(tf.keras.callbacks.Callback):
-#     def on_trial_end(self, trial_id, logs=None):
-#         K.clear_session()
-#         gc.collect()
+# memory cleanup callback
+class MemoryCleanupCallback(tf.keras.callbacks.Callback):
+    def on_trial_end(self, trial, logs=None):
+        torch.cuda.empty_cache()  
+        gc.collect()              
+        print(f"Cleared GPU memory after trial {trial.trial_id}")
 
 
 
@@ -163,9 +163,11 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
     stop_early = EarlyStopping(monitor="val_loss", 
                                patience=10, 
                                restore_best_weights=False)
+    memory_cleanup = MemoryCleanupCallback()
+    
     tuner.search(X_train, y_train, 
                  validation_data=(X_val, y_val),
-                 callbacks=[stop_early])
+                 callbacks=[stop_early, memory_cleanup])
 
     for trial_id, trial in tuner.oracle.trials.items():
         torch.cuda.empty_cache() 
