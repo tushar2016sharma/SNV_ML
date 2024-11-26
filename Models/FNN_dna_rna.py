@@ -164,11 +164,10 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
     stop_early = EarlyStopping(monitor="val_loss", 
                                patience=10, 
                                restore_best_weights=False)
-    memory_cleanup = MemoryCleanupCallback()
     
     tuner.search(X_train, y_train, 
                  validation_data=(X_val, y_val),
-                 callbacks=[stop_early, memory_cleanup])
+                 callbacks=[stop_early])
 
     for trial_id, trial in tuner.oracle.trials.items():
         torch.cuda.empty_cache() 
