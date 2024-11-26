@@ -123,27 +123,31 @@ class FNNHyperModel(kt.HyperModel):
         model.add(layers.Input(shape=(X_train_combined_final.shape[1:])))
 
         # fully connected layers
-        for i in range(4):
-            model.add(layers.Dense(units=hp.Int(f"units_{i}", min_value=200, max_value=3200, step=400), activation="relu"))
+        for i in range(3):
+            model.add(layers.Dense(units=hp.Choice(f"units_{i}", 
+                                                   values=[100, 200, 400, 800, 1600]), 
+                                   activation="relu"))
             model.add(layers.BatchNormalization())
-            model.add(layers.Dropout(hp.Float(f"dropout_{i}", min_value=0.2, max_value=0.5, step=0.1)))
+            model.add(layers.Dropout(hp.Float(f"dropout_{i}", 
+                                              min_value=0.2, 
+                                              max_value=0.5, step=0.1)))
 
         model.add(layers.Dense(1, activation="sigmoid"))
 
         model.compile(optimizer=Adam(hp.Choice("learning_rate",
                                                values=[0.01, 0.001, 0.0001])),
-                      loss=focal_loss(alpha = 0.25, gamma = 2.0),
+                      loss=focal_loss(alpha=0.25, gamma=2.0),
                       metrics=["accuracy", f1_score, "AUC"])
 
         return model
 
 
 
-# memory cleanup after trial
-class MemoryCleanupCallback(tf.keras.callbacks.Callback):
-    def on_trial_end(self, trial_id, logs=None):
-        K.clear_session()
-        gc.collect()
+# # memory cleanup after trial
+# class MemoryCleanupCallback(tf.keras.callbacks.Callback):
+#     def on_trial_end(self, trial_id, logs=None):
+#         K.clear_session()
+#         gc.collect()
 
 
 
@@ -156,14 +160,25 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
                       directory=models_dir,
                       project_name=f"hyperband_FNN_{sample_id}")
 
-    stop_early = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=False)
-    tuner.search(X_train, y_train, validation_data=(X_val, y_val), callbacks=[stop_early, MemoryCleanupCallback()])
+    stop_early = EarlyStopping(monitor="val_loss", 
+                               patience=10, 
+                               restore_best_weights=False)
+    tuner.search(X_train, y_train, 
+                 validation_data=(X_val, y_val), 
+                 callbacks=[stop_early])
+
+    for trial_id, trial in tuner.oracle.trials.items():
+        torch.cuda.empty_cache() 
+        gc.collect()             
+        print(f"Cleared GPU memory after trial {trial_id}")
 
     best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
     model = tuner.hypermodel.build(best_hps)
 
-    model.fit(X_train, y_train, validation_data=(X_val, y_val),
-              epochs=150, callbacks=[stop_early], verbose=2)
+    model.fit(X_train, y_train, 
+              validation_data=(X_val, y_val), 
+              batch_size = 32, epochs=150, 
+              callbacks=[stop_early], verbose=2)
 
     best_model_path = os.path.join(models_dir, f"{sample_id}_FNN_model.h5")
     model.save(best_model_path)
