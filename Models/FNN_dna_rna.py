@@ -157,13 +157,13 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
                       project_name=f"hyperband_FNN_{sample_id}")
 
     stop_early = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=False)
-    tuner.search(X_train, y_train, validation_data=(X_val, y_val), callbacks=[stop_early])
+    tuner.search(X_train, y_train, validation_data=(X_val, y_val), callbacks=[stop_early, MemoryCleanupCallback()])
 
     best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
     model = tuner.hypermodel.build(best_hps)
 
     model.fit(X_train, y_train, validation_data=(X_val, y_val),
-              epochs=150, callbacks=[stop_early, MemoryCleanupCallback()], verbose=2)
+              epochs=150, callbacks=[stop_early], verbose=2)
 
     best_model_path = os.path.join(models_dir, f"{sample_id}_FNN_model.h5")
     model.save(best_model_path)
