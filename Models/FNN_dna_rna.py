@@ -139,6 +139,14 @@ class FNNHyperModel(kt.HyperModel):
 
 
 
+# memory cleanup after trial
+class MemoryCleanupCallback(tf.keras.callbacks.Callback):
+    def on_trial_end(self, trial_id, logs=None):
+        K.clear_session()
+        gc.collect()
+
+
+
 # HYPERBAND TUNING
 def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
     tuner = Hyperband(FNNHyperModel(),
@@ -155,7 +163,7 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
     model = tuner.hypermodel.build(best_hps)
 
     model.fit(X_train, y_train, validation_data=(X_val, y_val),
-              epochs=150, callbacks=[stop_early], verbose=2)
+              epochs=150, callbacks=[stop_early, MemoryCleanupCallback()], verbose=2)
 
     best_model_path = os.path.join(models_dir, f"{sample_id}_FNN_model.h5")
     model.save(best_model_path)
