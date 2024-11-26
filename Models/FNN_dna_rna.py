@@ -164,7 +164,8 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
                                patience=10, 
                                restore_best_weights=False)
     tuner.search(X_train, y_train, 
-                 validation_data=(X_val, y_val), 
+                 validation_data=(X_val, y_val),
+                 batch_size=hp.Choice("batch_size", values=[32, 64]),
                  callbacks=[stop_early])
 
     for trial_id, trial in tuner.oracle.trials.items():
@@ -177,8 +178,8 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
 
     model.fit(X_train, y_train, 
               validation_data=(X_val, y_val), 
-              batch_size = 32, epochs=150, 
-              callbacks=[stop_early], verbose=2)
+              batch_size=best_hps.get("batch_size"),
+              epochs=150, callbacks=[stop_early], verbose=2)
 
     best_model_path = os.path.join(models_dir, f"{sample_id}_FNN_model.h5")
     model.save(best_model_path)
