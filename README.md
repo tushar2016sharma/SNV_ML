@@ -1,12 +1,22 @@
 # SNV_ML
 ### Modeling the origin of the mutation type in scRNA nanopore long reads data.
 
-Installation requirements -
+Installation requirements - all the dependencies are listed in the requirements.txt file. 
 
-Other than the standard python libraries for ML/DL modelling, following are the two additional libraries required:
+To run the models either in an existing or a new environment, use the following snippet:
 
-  - keras-core (for torch backend)
-      https://pypi.org/project/keras-core/
+```
+# Clone the repository
+!git clone https://github.com/tushar2016sharma/SNV_ML.git
+%cd SNV_ML
 
-  - Keras-tuner (for Hyperband tuning)
-      https://pypi.org/project/keras-tuner/
+# Install the dependencies
+!pip install -r requirements.txt
+
+# Confirm GPU availability
+import torch
+print("Using device:", "GPU" if torch.cuda.is_available() else "CPU")
+
+# Run the model
+!python Models/FNN_dna_rna.py   # or CNN_dna_rna.py for the CNN model
+```
