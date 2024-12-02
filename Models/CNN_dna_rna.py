@@ -12,6 +12,7 @@ from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 from sklearn.preprocessing import StandardScaler, MaxAbsScaler, OneHotEncoder
 from sklearn.metrics import confusion_matrix, f1_score, cohen_kappa_score, precision_score, recall_score, precision_recall_curve, auc, roc_auc_score, make_scorer
 
+import gc
 import torch
 import tensorflow as tf
 import keras_tuner as kt
@@ -146,15 +147,24 @@ class CNNHyperModel(kt.HyperModel):
         return model
 
 
+
+# memory cleanup
+class MemoryEfficientHyperband(Hyperband):
+    def on_trial_end(self, trial):
+        super().on_trial_end(trial) 
+        torch.cuda.empty_cache()    
+        gc.collect()                
+        print(f"Cleared GPU memory after trial {trial.trial_id}")
+
+
+
 def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
-    tuner = Hyperband(
-        CNNHyperModel(),
-        objective="val_loss",
-        max_epochs=150,
-        factor=2,
-        directory=models_dir,
-        project_name=f"hyperband_CNN_{sample_id}"
-    )
+    tuner = MemoryEfficientHyperband(CNNHyperModel(),
+                objective="val_loss",
+                max_epochs=150,
+                factor=2,
+                directory=models_dir,
+                project_name=f"hyperband_CNN_{sample_id}")
 
     stop_early = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=False)
     tuner.search(X_train, y_train, validation_data=(X_val, y_val), callbacks=[stop_early])
