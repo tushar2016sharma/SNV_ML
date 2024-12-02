@@ -160,11 +160,11 @@ class MemoryEfficientHyperband(Hyperband):
 
 def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
     tuner = MemoryEfficientHyperband(CNNHyperModel(),
-                objective="val_loss",
-                max_epochs=150,
-                factor=2,
-                directory=models_dir,
-                project_name=f"hyperband_CNN_{sample_id}")
+                                    objective="val_loss",
+                                    max_epochs=150,
+                                    factor=2,
+                                    directory=models_dir,
+                                    project_name=f"hyperband_CNN_{sample_id}")
 
     stop_early = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=False)
     tuner.search(X_train, y_train, validation_data=(X_val, y_val), callbacks=[stop_early])
