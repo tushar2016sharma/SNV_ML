@@ -1,4 +1,4 @@
-keras==3.7.0
+keras==2.12.0
 keras_core==0.1.7
 keras_tuner==1.4.7
 matplotlib==3.8.0
