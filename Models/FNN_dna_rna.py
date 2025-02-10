@@ -158,7 +158,7 @@ def tune_and_train(X_train, y_train, X_val, y_val, models_dir, sample_id):
     tuner = MemoryEfficientHyperband(FNNHyperModel(),
                                      objective="val_loss",
                                      max_epochs=150,
-                                     factor=2,
+                                     factor=3,
                                      directory=models_dir,
                                      project_name=f"hyperband_FNN_{sample_id}")
 
